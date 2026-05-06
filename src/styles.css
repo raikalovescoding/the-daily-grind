@@ -164,3 +164,34 @@
     color: var(--color-foreground);
   }
 }
+
+@keyframes blob-a {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  33% { transform: translate(8%, -6%) scale(1.15); }
+  66% { transform: translate(-6%, 6%) scale(0.95); }
+}
+@keyframes blob-b {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50% { transform: translate(-10%, 8%) scale(1.2); }
+}
+@keyframes blob-c {
+  0%, 100% { transform: translate(0%, 0%) scale(1.05); }
+  40% { transform: translate(7%, 7%) scale(0.9); }
+  80% { transform: translate(-5%, -8%) scale(1.1); }
+}
+@keyframes blob-d {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50% { transform: translate(10%, -10%) scale(1.1); }
+}
+@keyframes blob-e {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50% { transform: translate(-8%, -6%) scale(1.25); }
+}
+
+.bg-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+  will-change: transform;
+}
