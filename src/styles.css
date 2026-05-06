@@ -130,8 +130,15 @@
   --ring: oklch(0.62 0.22 295);
   --note-line: oklch(1 0 0 / 18%);
   --placeholder: oklch(0.65 0.02 295);
-  --app-bg-gradient: radial-gradient(ellipse at top, oklch(0.3 0.05 295) 0%, oklch(0.22 0.02 295) 60%);
+  --app-bg-base: oklch(0.22 0.02 295);
+  --blob-1: oklch(0.55 0.18 220 / 0.35);
+  --blob-2: oklch(0.55 0.16 250 / 0.32);
+  --blob-3: oklch(0.6 0.14 190 / 0.3);
+  --blob-4: oklch(0.6 0.16 350 / 0.28);
+  --blob-5: oklch(0.55 0.22 295 / 0.3);
+  --card-tint: oklch(0.3 0.02 295 / 0.55);
   --box-shadow-soft: 0 10px 30px -12px oklch(0 0 0 / 0.5), 0 4px 12px -6px oklch(0 0 0 / 0.3);
+  --box-shadow-dice: 0 10px 22px -6px oklch(0 0 0 / 0.7);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
