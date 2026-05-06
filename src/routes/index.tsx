@@ -4,7 +4,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { Moon, Sun, Trash2, Plus } from "lucide-react";
+import { Moon, Sun, Trash2, Plus, Star } from "lucide-react";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/")({
@@ -20,12 +20,12 @@ type Task = {
   date: Date | null;
 };
 
-function diceShape(v: DiceValue) {
-  // 4=triangle, 6=square, 10=rhombus, 20=hexagon — all 2d
-  if (v === 4) return "polygon(50% 6%, 96% 92%, 4% 92%)";
-  if (v === 6) return "polygon(6% 6%, 94% 6%, 94% 94%, 6% 94%)";
-  if (v === 10) return "polygon(50% 4%, 96% 50%, 50% 96%, 4% 50%)";
-  return "polygon(25% 6%, 75% 6%, 98% 50%, 75% 94%, 25% 94%, 2% 50%)";
+function dicePoints(v: DiceValue) {
+  // 4=triangle, 6=square, 10=rhombus, 20=hexagon
+  if (v === 4) return "50,8 92,88 8,88";
+  if (v === 6) return "10,10 90,10 90,90 10,90";
+  if (v === 10) return "50,8 92,50 50,92 8,50";
+  return "28,10 72,10 94,50 72,90 28,90 6,50";
 }
 
 function Index() {
@@ -97,41 +97,28 @@ function Index() {
 
   return (
     <div
-      className="h-screen w-screen overflow-hidden p-4 sm:p-6 lowercase"
+      className="h-screen w-screen overflow-hidden p-4 sm:p-6"
       style={{ background: "var(--app-bg-gradient)" }}
     >
-      {/* theme toggle */}
-      <button
-        onClick={() => setDark((d) => !d)}
-        aria-label="toggle theme"
-        className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-xl bg-card text-primary transition-all hover:scale-105"
-        style={{ boxShadow: "var(--box-shadow-soft)" }}
-      >
-        {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      </button>
-
       <div className="mx-auto grid h-full max-w-7xl grid-cols-1 gap-4 sm:gap-6 md:grid-cols-5">
         {/* Notes box */}
         <div
-          className="relative col-span-1 flex h-full min-h-0 flex-col overflow-hidden rounded-3xl bg-card p-5 md:col-span-3"
+          className="relative col-span-1 flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border-2 border-border bg-card p-5 md:col-span-3"
           style={{ boxShadow: "var(--box-shadow-soft)" }}
         >
           <div className="mb-3 text-sm font-medium text-primary">notes</div>
           <div className="relative flex-1 min-h-0">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(transparent 0, transparent 27px, var(--note-line) 27px, var(--note-line) 28px)",
-              }}
-            />
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="click here to type..."
-              className="relative h-full w-full resize-none overflow-y-auto bg-transparent leading-7 text-foreground outline-none lowercase"
-              style={{ color: "var(--foreground)" }}
+              className="relative h-full w-full resize-none overflow-y-auto bg-transparent leading-7 text-foreground outline-none"
+              style={{
+                color: "var(--foreground)",
+                backgroundImage:
+                  "repeating-linear-gradient(transparent 0, transparent 27px, var(--note-line) 27px, var(--note-line) 28px)",
+                backgroundAttachment: "local",
+              }}
             />
           </div>
         </div>
@@ -140,25 +127,50 @@ function Index() {
         <div className="col-span-1 flex h-full min-h-0 flex-col gap-4 sm:gap-6 md:col-span-2">
           {/* Toys box */}
           <div
-            className="flex flex-[0.9] min-h-0 items-center justify-around gap-3 rounded-3xl bg-card p-5"
+            className="relative flex flex-[0.75] min-h-0 flex-col rounded-3xl border-2 border-border bg-card p-5"
             style={{ boxShadow: "var(--box-shadow-soft)" }}
           >
+            <div className="mb-2 flex items-center justify-between">
+              <div className="text-sm font-medium text-primary">toys</div>
+              <button
+                onClick={() => setDark((d) => !d)}
+                aria-label="toggle theme"
+                className="grid h-11 w-11 cursor-pointer place-items-center rounded-xl border-2 border-border bg-card text-primary transition-all hover:scale-105"
+                style={{ boxShadow: "var(--box-shadow-soft)" }}
+              >
+                {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+            </div>
+            <div className="flex flex-1 min-h-0 items-center justify-around gap-3">
             {/* Dice */}
-            <div className="flex flex-1 flex-col items-center gap-3">
+            <div className="flex flex-1 flex-col items-center gap-2">
               <button
                 onClick={rollDice}
                 aria-label="roll dice"
-                className="relative grid h-20 w-20 place-items-center transition-transform active:scale-95"
+                className="relative grid h-20 w-20 cursor-pointer place-items-center transition-transform active:scale-95"
                 style={{
-                  clipPath: diceShape(diceVal),
-                  background:
-                    "linear-gradient(135deg, oklch(0.65 0.22 295), oklch(0.5 0.22 295))",
-                  boxShadow: "var(--box-shadow-soft)",
                   transform: rolling ? "rotate(15deg)" : "rotate(0)",
                   transition: "transform 0.1s",
+                  filter:
+                    "drop-shadow(0 6px 14px oklch(0.55 0.22 295 / 0.35))",
                 }}
               >
-                <span className="text-xl font-bold text-primary-foreground">
+                <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
+                  <defs>
+                    <linearGradient id="diceg" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="oklch(0.7 0.22 295)" />
+                      <stop offset="100%" stopColor="oklch(0.5 0.22 295)" />
+                    </linearGradient>
+                  </defs>
+                  <polygon
+                    points={dicePoints(diceVal)}
+                    fill="url(#diceg)"
+                    stroke="url(#diceg)"
+                    strokeWidth={14}
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="relative text-xl font-bold text-primary-foreground">
                   {rolled ?? "?"}
                 </span>
               </button>
@@ -168,9 +180,9 @@ function Index() {
                 min={0}
                 max={3}
                 step={1}
-                className="w-full"
+                className="w-16"
               />
-              <div className="text-xs text-muted-foreground">d{diceVal}</div>
+              <div className="text-xs text-muted-foreground">{diceVal}</div>
             </div>
 
             {/* Fidget spinner */}
@@ -178,25 +190,25 @@ function Index() {
               <button
                 onClick={spin}
                 aria-label="spin"
-                className="relative h-24 w-24"
-                style={{ transform: `rotate(${angle}deg)` }}
+                className="grid h-20 w-20 cursor-pointer place-items-center transition-transform active:scale-95"
               >
-                {[0, 120, 240].map((deg) => (
-                  <span
-                    key={deg}
-                    className="absolute left-1/2 top-1/2 block h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, oklch(0.65 0.22 295), oklch(0.45 0.22 295))",
-                      transform: `translate(-50%,-50%) rotate(${deg}deg) translateY(-30px)`,
-                      boxShadow: "var(--box-shadow-soft)",
-                    }}
-                  />
-                ))}
-                <span
-                  className="absolute left-1/2 top-1/2 block h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-card"
-                  style={{ boxShadow: "inset 0 0 0 3px var(--primary)" }}
+                <Star
+                  className="h-20 w-20"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  strokeWidth={1.5}
+                  fill="url(#starg)"
+                  stroke="oklch(0.45 0.22 295)"
+                  style={{ transform: `rotate(${angle}deg)`, transformOrigin: "50% 50%" }}
                 />
+                <svg width="0" height="0" className="absolute">
+                  <defs>
+                    <linearGradient id="starg" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="oklch(0.7 0.22 295)" />
+                      <stop offset="100%" stopColor="oklch(0.5 0.22 295)" />
+                    </linearGradient>
+                  </defs>
+                </svg>
               </button>
             </div>
 
@@ -204,7 +216,7 @@ function Index() {
             <div className="flex flex-1 items-center justify-center">
               <button
                 onClick={() => setClicks((c) => c + 1)}
-                className="grid h-20 w-20 place-items-center rounded-full text-2xl font-bold text-primary-foreground transition-transform active:scale-95"
+                className="grid h-20 w-20 cursor-pointer place-items-center rounded-full text-2xl font-bold text-primary-foreground transition-transform active:scale-95"
                 style={{
                   background:
                     "linear-gradient(135deg, oklch(0.65 0.22 295), oklch(0.5 0.22 295))",
@@ -214,18 +226,19 @@ function Index() {
                 {clicks}
               </button>
             </div>
+            </div>
           </div>
 
           {/* Tasks box */}
           <div
-            className="flex flex-[1.1] min-h-0 flex-col rounded-3xl bg-card p-5"
+            className="flex flex-[1.25] min-h-0 flex-col rounded-3xl border-2 border-border bg-card p-5"
             style={{ boxShadow: "var(--box-shadow-soft)" }}
           >
             <div className="mb-3 flex items-center justify-between">
               <div className="text-sm font-medium text-primary">tasks</div>
               <button
                 onClick={addTask}
-                className="grid h-7 w-7 place-items-center rounded-lg text-primary transition-colors hover:bg-accent"
+                className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg text-primary transition-colors hover:bg-accent"
                 aria-label="add task"
               >
                 <Plus className="h-4 w-4" />
@@ -248,7 +261,7 @@ function Index() {
                         updateTask(task.id, { text: e.target.value });
                       }}
                       placeholder="click here to type a task..."
-                      className="flex-1 resize-none bg-transparent text-sm leading-6 text-foreground outline-none lowercase"
+                      className="flex-1 resize-none bg-transparent text-sm leading-6 text-foreground outline-none"
                     />
                     <DateButton
                       value={task.date}
@@ -257,7 +270,7 @@ function Index() {
                     <button
                       onClick={() => removeTask(task.id)}
                       aria-label="remove"
-                      className="opacity-0 transition-opacity group-hover:opacity-100"
+                      className="cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
                     >
                       <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
                     </button>
@@ -272,6 +285,7 @@ function Index() {
       <style>{`
         textarea::placeholder { color: var(--placeholder); opacity: 1; text-transform: lowercase; }
         input::placeholder { color: var(--placeholder); opacity: 1; }
+        button { cursor: pointer; }
       `}</style>
     </div>
   );
@@ -305,7 +319,7 @@ function DateButton({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="shrink-0 rounded-lg border border-transparent bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground transition-all hover:border-primary hover:bg-card hover:text-primary lowercase"
+          className="shrink-0 cursor-pointer rounded-lg border border-transparent bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground transition-all hover:border-primary hover:bg-card hover:text-primary lowercase"
           style={{ minWidth: 56 }}
         >
           {label}
