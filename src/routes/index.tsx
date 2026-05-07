@@ -50,32 +50,8 @@ function HoverBox({
   style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onMove = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      const dist = Math.hypot(dx, dy);
-      const half = Math.min(r.width, r.height) / 2;
-      const radius = half + 80;
-      const t = Math.max(0, 1 - dist / radius);
-      el.style.setProperty("--hover-t", t.toFixed(3));
-    };
-    const onLeave = () => el.style.setProperty("--hover-t", "0");
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseleave", onLeave);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseleave", onLeave);
-    };
-  }, []);
   return (
-    <div ref={ref} className={className} style={style}>
+    <div className={className} style={style}>
       {children}
     </div>
   );
@@ -83,18 +59,12 @@ function HoverBox({
 
 function Index() {
   const [dark, setDark] = useState(false);
-  const [notes, setNotes] = useState("");
-  const notesRef = useRef<HTMLTextAreaElement>(null);
+  const notesRef = useRef<HTMLDivElement>(null);
   const [fontSize, setFontSize] = useState(16);
-  const [highlight, setHighlight] = useState(false);
-  const [styles, setStyles] = useState({
-    bold: false,
-    italic: false,
-    underline: false,
-    strike: false,
-  });
-  const toggleStyle = (k: keyof typeof styles) =>
-    setStyles((s) => ({ ...s, [k]: !s[k] }));
+  const exec = (cmd: string, val?: string) => {
+    notesRef.current?.focus();
+    document.execCommand(cmd, false, val);
+  };
   const [tasks, setTasks] = useState<Task[]>([
     { id: crypto.randomUUID(), text: "", date: null },
   ]);
@@ -182,29 +152,25 @@ function Index() {
             <div className="text-sm font-medium text-primary">notes</div>
             <div className="flex items-center gap-1">
               {[
-                { k: "bold", icon: Bold },
-                { k: "italic", icon: Italic },
-                { k: "underline", icon: Underline },
-                { k: "strike", icon: Strikethrough },
-              ].map(({ k, icon: Icon }) => (
+                { k: "bold", cmd: "bold", icon: Bold },
+                { k: "italic", cmd: "italic", icon: Italic },
+                { k: "underline", cmd: "underline", icon: Underline },
+                { k: "strike", cmd: "strikeThrough", icon: Strikethrough },
+              ].map(({ k, cmd, icon: Icon }) => (
                 <button
                   key={k}
-                  onClick={() => toggleStyle(k as keyof typeof styles)}
-                  className={`grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 transition-all hover:scale-110 ${
-                    styles[k as keyof typeof styles]
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-primary"
-                  }`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => exec(cmd)}
+                  className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 border-border text-primary transition-all hover:scale-110 hover:border-primary"
                   aria-label={k}
                 >
                   <Icon className="h-3.5 w-3.5" />
                 </button>
               ))}
               <button
-                onClick={() => setHighlight((h) => !h)}
-                className={`grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 transition-all hover:scale-110 ${
-                  highlight ? "border-primary bg-primary text-primary-foreground" : "border-border text-primary"
-                }`}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => exec("hiliteColor", "rgba(255,235,120,0.55)")}
+                className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 border-border text-primary transition-all hover:scale-110 hover:border-primary"
                 aria-label="highlight"
               >
                 <Highlighter className="h-3.5 w-3.5" />
@@ -223,26 +189,19 @@ function Index() {
             </div>
           </div>
           <div className="relative flex-1 min-h-0">
-            <textarea
+            <div
               ref={notesRef}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="click here to type..."
-              className="relative h-full w-full resize-none overflow-y-auto bg-transparent leading-7 text-foreground outline-none"
+              contentEditable
+              suppressContentEditableWarning
+              data-placeholder="click here to type..."
+              className="notes-editor relative h-full w-full overflow-y-auto bg-transparent text-foreground outline-none"
               style={{
                 color: "var(--foreground)",
                 fontSize: `${fontSize}px`,
                 lineHeight: `${Math.round(fontSize * 1.75)}px`,
-                fontWeight: styles.bold ? 700 : 400,
-                fontStyle: styles.italic ? "italic" : "normal",
-                textDecoration: [
-                  styles.underline ? "underline" : "",
-                  styles.strike ? "line-through" : "",
-                ].filter(Boolean).join(" ") || "none",
-                background: highlight
-                  ? `linear-gradient(oklch(0.92 0.15 90 / 0.45), oklch(0.92 0.15 90 / 0.45)), repeating-linear-gradient(transparent 0, transparent ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75)}px)`
-                  : `repeating-linear-gradient(transparent 0, transparent ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75)}px)`,
+                background: `repeating-linear-gradient(to bottom, transparent 0, transparent ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75)}px)`,
                 backgroundAttachment: "local",
+                textShadow: "var(--text-shadow)",
               }}
             />
           </div>
@@ -260,7 +219,7 @@ function Index() {
               <button
                 onClick={() => setDark((d) => !d)}
                 aria-label="toggle theme"
-                className="grid h-11 w-11 cursor-pointer place-items-center rounded-xl border-2 border-border bg-card text-primary transition-transform hover:scale-110"
+                className="blur-btn grid h-11 w-11 cursor-pointer place-items-center rounded-xl border-2 border-border text-primary transition-transform hover:scale-110"
                 style={{ boxShadow: "var(--box-shadow-soft)" }}
               >
                 {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -268,7 +227,7 @@ function Index() {
             </div>
             <div className="flex flex-1 min-h-0 items-center justify-around gap-3">
             {/* Dice */}
-            <div className="flex flex-1 flex-col items-center justify-center gap-2">
+            <div className="relative flex flex-1 flex-col items-center justify-center">
               <div className="grid h-24 w-24 place-items-center">
               <button
                 onClick={rollDice}
@@ -283,8 +242,8 @@ function Index() {
                 <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
                   <defs>
                     <linearGradient id="diceg" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="oklch(0.7 0.22 295)" />
-                      <stop offset="100%" stopColor="oklch(0.5 0.22 295)" />
+                      <stop offset="0%" stopColor="oklch(0.78 0.18 350)" />
+                      <stop offset="100%" stopColor="oklch(0.6 0.2 350)" />
                     </linearGradient>
                   </defs>
                   <polygon
@@ -295,24 +254,26 @@ function Index() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="relative text-xl font-bold text-primary-foreground">
+                <span className="relative text-xl font-bold text-primary-foreground" style={{ textShadow: "var(--text-shadow)" }}>
                   {rolled ?? "?"}
                 </span>
               </button>
               </div>
-              <Slider
-                value={[diceIdx]}
-                onValueChange={(v) => setDiceIdx(v[0])}
-                min={0}
-                max={3}
-                step={1}
-                className="w-16"
-              />
-              <div className="text-xs text-muted-foreground">{diceVal}</div>
+              <div className="absolute left-1/2 top-full -translate-x-1/2 flex flex-col items-center gap-1 pt-2">
+                <Slider
+                  value={[diceIdx]}
+                  onValueChange={(v) => { setDiceIdx(v[0]); setRolled(null); }}
+                  min={0}
+                  max={3}
+                  step={1}
+                  className="w-16"
+                />
+                <div className="text-xs text-muted-foreground">{diceVal}</div>
+              </div>
             </div>
 
             {/* Fidget spinner */}
-            <div className="flex flex-1 flex-col items-center justify-center gap-2">
+            <div className="flex flex-1 flex-col items-center justify-center">
               <div className="grid h-24 w-24 place-items-center">
               <button
                 onClick={spin}
@@ -325,13 +286,13 @@ function Index() {
                   style={{
                     transform: `rotate(${angle}deg)`,
                     transformOrigin: "50% 50%",
-                    filter: "drop-shadow(0 6px 14px oklch(0.4 0.18 295 / 0.45))",
+                    filter: "drop-shadow(0 6px 14px oklch(0.5 0.2 350 / 0.45))",
                   }}
                 >
                   <defs>
                     <linearGradient id="starg" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="oklch(0.7 0.22 295)" />
-                      <stop offset="100%" stopColor="oklch(0.5 0.22 295)" />
+                      <stop offset="0%" stopColor="oklch(0.78 0.18 350)" />
+                      <stop offset="100%" stopColor="oklch(0.6 0.2 350)" />
                     </linearGradient>
                   </defs>
                   <polygon
@@ -348,15 +309,16 @@ function Index() {
             </div>
 
             {/* Click counter */}
-            <div className="flex flex-1 flex-col items-center justify-center gap-2">
+            <div className="flex flex-1 flex-col items-center justify-center">
               <div className="grid h-24 w-24 place-items-center">
               <button
                 onClick={() => setClicks((c) => c + 1)}
                 className="grid h-20 w-20 cursor-pointer place-items-center rounded-full text-2xl font-bold text-primary-foreground transition-transform hover:scale-110 active:scale-95"
                 style={{
                   background:
-                    "linear-gradient(135deg, oklch(0.65 0.22 295), oklch(0.5 0.22 295))",
+                    "linear-gradient(135deg, oklch(0.78 0.18 350), oklch(0.6 0.2 350))",
                   boxShadow: "var(--box-shadow-soft)",
+                  textShadow: "var(--text-shadow)",
                 }}
               >
                 {clicks}
@@ -423,16 +385,27 @@ function Index() {
         textarea::placeholder { color: var(--placeholder); opacity: 1; text-transform: lowercase; }
         input::placeholder { color: var(--placeholder); opacity: 1; }
         button { cursor: pointer; }
-        .hover-box {
-          --hover-t: 0;
+        .notes-editor:empty::before {
+          content: attr(data-placeholder);
+          color: var(--placeholder);
+          pointer-events: none;
+          text-transform: lowercase;
+        }
+        .notes-editor { white-space: pre-wrap; word-wrap: break-word; }
+        .blur-btn {
           background: var(--card-tint);
           backdrop-filter: blur(18px) saturate(1.1);
           -webkit-backdrop-filter: blur(18px) saturate(1.1);
-          border: 2px solid color-mix(in oklab, var(--border) calc((1 - var(--hover-t)) * 100%), var(--hover-border, oklch(0.45 0.05 295)) calc(var(--hover-t) * 100%));
-          transition: border-color 0.4s ease;
         }
-        :root .hover-box { --hover-border: oklch(0.35 0.08 295); }
-        .dark .hover-box { --hover-border: oklch(0.95 0.02 295); }
+        .hover-box {
+          background: var(--card-tint);
+          backdrop-filter: blur(18px) saturate(1.1);
+          -webkit-backdrop-filter: blur(18px) saturate(1.1);
+          border: 2px solid var(--border);
+          transition: border-color 0.6s ease, background 0.6s ease;
+        }
+        :root .hover-box:hover { border-color: oklch(0.4 0.08 350); }
+        .dark .hover-box:hover { border-color: oklch(0.95 0.02 350); }
       `}</style>
     </div>
   );
@@ -466,8 +439,18 @@ function DateButton({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="shrink-0 cursor-pointer rounded-lg border-2 border-primary/40 bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:scale-105 hover:border-primary hover:border-[3px] hover:bg-card hover:text-primary lowercase"
-          style={{ minWidth: 80 }}
+          className="blur-btn shrink-0 cursor-pointer rounded-lg border-2 border-primary/40 px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:border-primary hover:text-primary lowercase"
+          style={{
+            minWidth: 80,
+            background: "linear-gradient(135deg, oklch(0.78 0.18 350 / 0.75), oklch(0.6 0.2 350 / 0.75))",
+            backdropFilter: "blur(18px) saturate(1.1)",
+            WebkitBackdropFilter: "blur(18px) saturate(1.1)",
+            transform: "scale(1)",
+            transformOrigin: "center",
+            textShadow: "var(--text-shadow)",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.08)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           {label}
         </button>
