@@ -439,8 +439,16 @@ function DateButton({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="shrink-0 cursor-pointer rounded-lg border-2 border-primary/40 bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:scale-105 hover:border-primary hover:border-[3px] hover:bg-card hover:text-primary lowercase"
-          style={{ minWidth: 80 }}
+          className="blur-btn shrink-0 cursor-pointer rounded-lg border-2 border-primary/40 px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:border-primary hover:text-primary lowercase"
+          style={{
+            minWidth: 80,
+            background: "linear-gradient(135deg, oklch(0.78 0.18 350), oklch(0.6 0.2 350))",
+            transform: "scale(1)",
+            transformOrigin: "center",
+            textShadow: "var(--text-shadow)",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.08)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           {label}
         </button>
