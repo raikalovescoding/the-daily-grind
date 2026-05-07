@@ -59,18 +59,12 @@ function HoverBox({
 
 function Index() {
   const [dark, setDark] = useState(false);
-  const [notes, setNotes] = useState("");
-  const notesRef = useRef<HTMLTextAreaElement>(null);
+  const notesRef = useRef<HTMLDivElement>(null);
   const [fontSize, setFontSize] = useState(16);
-  const [highlight, setHighlight] = useState(false);
-  const [styles, setStyles] = useState({
-    bold: false,
-    italic: false,
-    underline: false,
-    strike: false,
-  });
-  const toggleStyle = (k: keyof typeof styles) =>
-    setStyles((s) => ({ ...s, [k]: !s[k] }));
+  const exec = (cmd: string, val?: string) => {
+    notesRef.current?.focus();
+    document.execCommand(cmd, false, val);
+  };
   const [tasks, setTasks] = useState<Task[]>([
     { id: crypto.randomUUID(), text: "", date: null },
   ]);
