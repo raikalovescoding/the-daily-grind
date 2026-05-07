@@ -442,7 +442,9 @@ function DateButton({
           className="blur-btn shrink-0 cursor-pointer rounded-lg border-2 border-primary/40 px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:border-primary hover:text-primary lowercase"
           style={{
             minWidth: 80,
-            background: "linear-gradient(135deg, oklch(0.78 0.18 350), oklch(0.6 0.2 350))",
+            background: "linear-gradient(135deg, oklch(0.78 0.18 350 / 0.75), oklch(0.6 0.2 350 / 0.75))",
+            backdropFilter: "blur(18px) saturate(1.1)",
+            WebkitBackdropFilter: "blur(18px) saturate(1.1)",
             transform: "scale(1)",
             transformOrigin: "center",
             textShadow: "var(--text-shadow)",
