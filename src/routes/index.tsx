@@ -50,32 +50,8 @@ function HoverBox({
   style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onMove = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      const dist = Math.hypot(dx, dy);
-      const half = Math.min(r.width, r.height) / 2;
-      const radius = half + 80;
-      const t = Math.max(0, 1 - dist / radius);
-      el.style.setProperty("--hover-t", t.toFixed(3));
-    };
-    const onLeave = () => el.style.setProperty("--hover-t", "0");
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseleave", onLeave);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseleave", onLeave);
-    };
-  }, []);
   return (
-    <div ref={ref} className={className} style={style}>
+    <div className={className} style={style}>
       {children}
     </div>
   );
