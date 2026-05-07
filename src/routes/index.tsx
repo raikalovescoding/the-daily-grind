@@ -385,16 +385,27 @@ function Index() {
         textarea::placeholder { color: var(--placeholder); opacity: 1; text-transform: lowercase; }
         input::placeholder { color: var(--placeholder); opacity: 1; }
         button { cursor: pointer; }
-        .hover-box {
-          --hover-t: 0;
+        .notes-editor:empty::before {
+          content: attr(data-placeholder);
+          color: var(--placeholder);
+          pointer-events: none;
+          text-transform: lowercase;
+        }
+        .notes-editor { white-space: pre-wrap; word-wrap: break-word; }
+        .blur-btn {
           background: var(--card-tint);
           backdrop-filter: blur(18px) saturate(1.1);
           -webkit-backdrop-filter: blur(18px) saturate(1.1);
-          border: 2px solid color-mix(in oklab, var(--border) calc((1 - var(--hover-t)) * 100%), var(--hover-border, oklch(0.45 0.05 295)) calc(var(--hover-t) * 100%));
-          transition: border-color 0.4s ease;
         }
-        :root .hover-box { --hover-border: oklch(0.35 0.08 295); }
-        .dark .hover-box { --hover-border: oklch(0.95 0.02 295); }
+        .hover-box {
+          background: var(--card-tint);
+          backdrop-filter: blur(18px) saturate(1.1);
+          -webkit-backdrop-filter: blur(18px) saturate(1.1);
+          border: 2px solid var(--border);
+          transition: border-color 0.6s ease, background 0.6s ease;
+        }
+        :root .hover-box:hover { border-color: oklch(0.4 0.08 350); }
+        .dark .hover-box:hover { border-color: oklch(0.95 0.02 350); }
       `}</style>
     </div>
   );
