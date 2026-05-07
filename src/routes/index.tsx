@@ -65,6 +65,13 @@ function Index() {
     notesRef.current?.focus();
     document.execCommand(cmd, false, val);
   };
+  const [highlightOn, setHighlightOn] = useState(false);
+  const toggleHighlight = () => {
+    notesRef.current?.focus();
+    const next = !highlightOn;
+    setHighlightOn(next);
+    document.execCommand("hiliteColor", false, next ? "rgba(255,235,120,0.55)" : "transparent");
+  };
   const [tasks, setTasks] = useState<Task[]>([
     { id: crypto.randomUUID(), text: "", date: null },
   ]);
@@ -169,8 +176,8 @@ function Index() {
               ))}
               <button
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => exec("hiliteColor", "rgba(255,235,120,0.55)")}
-                className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 border-border text-primary transition-all hover:scale-110 hover:border-primary"
+                onClick={toggleHighlight}
+                className={`grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 transition-all hover:scale-110 hover:border-primary ${highlightOn ? "border-primary bg-primary/15 text-primary" : "border-border text-primary"}`}
                 aria-label="highlight"
               >
                 <Highlighter className="h-3.5 w-3.5" />
@@ -188,19 +195,18 @@ function Index() {
               </div>
             </div>
           </div>
-          <div className="relative flex-1 min-h-0">
+          <div className="relative flex-1 min-h-0 overflow-y-auto">
             <div
               ref={notesRef}
               contentEditable
               suppressContentEditableWarning
               data-placeholder="click here to type..."
-              className="notes-editor relative h-full w-full overflow-y-auto bg-transparent text-foreground outline-none"
+              className="notes-editor relative min-h-full w-full bg-transparent text-foreground outline-none"
               style={{
                 color: "var(--foreground)",
                 fontSize: `${fontSize}px`,
                 lineHeight: `${Math.round(fontSize * 1.75)}px`,
-                background: `repeating-linear-gradient(to bottom, transparent 0, transparent ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75)}px)`,
-                backgroundAttachment: "local",
+                backgroundImage: `repeating-linear-gradient(to bottom, transparent 0, transparent ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75)}px)`,
                 textShadow: "var(--text-shadow)",
               }}
             />
@@ -286,7 +292,7 @@ function Index() {
                   style={{
                     transform: `rotate(${angle}deg)`,
                     transformOrigin: "50% 50%",
-                    filter: "drop-shadow(0 6px 14px oklch(0.5 0.2 350 / 0.45))",
+                    filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.25))",
                   }}
                 >
                   <defs>
