@@ -225,7 +225,7 @@ function Index() {
               <button
                 onClick={() => setDark((d) => !d)}
                 aria-label="toggle theme"
-                className="blur-btn grid h-11 w-11 cursor-pointer place-items-center rounded-xl border-2 border-border text-primary transition-transform hover:scale-110"
+                className="glass-btn grid h-11 w-11 cursor-pointer place-items-center rounded-xl border-2 border-border text-primary transition-transform hover:scale-110"
                 style={{ boxShadow: "var(--box-shadow-soft)" }}
               >
                 {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -403,6 +403,11 @@ function Index() {
           backdrop-filter: blur(18px) saturate(1.1);
           -webkit-backdrop-filter: blur(18px) saturate(1.1);
         }
+        .glass-btn {
+          background: color-mix(in oklab, var(--card-tint) 45%, transparent);
+          backdrop-filter: blur(20px) saturate(1.2);
+          -webkit-backdrop-filter: blur(20px) saturate(1.2);
+        }
         .hover-box {
           background: var(--card-tint);
           backdrop-filter: blur(18px) saturate(1.1);
@@ -445,12 +450,9 @@ function DateButton({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="blur-btn shrink-0 cursor-pointer rounded-lg border-2 border-primary/40 px-3 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:border-primary hover:text-primary lowercase"
+          className="glass-btn shrink-0 cursor-pointer rounded-lg border-2 border-primary/40 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:border-primary lowercase"
           style={{
             minWidth: 80,
-            background: "linear-gradient(135deg, oklch(0.78 0.18 350 / 0.75), oklch(0.6 0.2 350 / 0.75))",
-            backdropFilter: "blur(18px) saturate(1.1)",
-            WebkitBackdropFilter: "blur(18px) saturate(1.1)",
             transform: "scale(1)",
             transformOrigin: "center",
             textShadow: "var(--text-shadow)",
