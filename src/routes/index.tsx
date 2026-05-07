@@ -152,29 +152,25 @@ function Index() {
             <div className="text-sm font-medium text-primary">notes</div>
             <div className="flex items-center gap-1">
               {[
-                { k: "bold", icon: Bold },
-                { k: "italic", icon: Italic },
-                { k: "underline", icon: Underline },
-                { k: "strike", icon: Strikethrough },
-              ].map(({ k, icon: Icon }) => (
+                { k: "bold", cmd: "bold", icon: Bold },
+                { k: "italic", cmd: "italic", icon: Italic },
+                { k: "underline", cmd: "underline", icon: Underline },
+                { k: "strike", cmd: "strikeThrough", icon: Strikethrough },
+              ].map(({ k, cmd, icon: Icon }) => (
                 <button
                   key={k}
-                  onClick={() => toggleStyle(k as keyof typeof styles)}
-                  className={`grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 transition-all hover:scale-110 ${
-                    styles[k as keyof typeof styles]
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-primary"
-                  }`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => exec(cmd)}
+                  className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 border-border text-primary transition-all hover:scale-110 hover:border-primary"
                   aria-label={k}
                 >
                   <Icon className="h-3.5 w-3.5" />
                 </button>
               ))}
               <button
-                onClick={() => setHighlight((h) => !h)}
-                className={`grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 transition-all hover:scale-110 ${
-                  highlight ? "border-primary bg-primary text-primary-foreground" : "border-border text-primary"
-                }`}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => exec("hiliteColor", "rgba(255,235,120,0.55)")}
+                className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border-2 border-border text-primary transition-all hover:scale-110 hover:border-primary"
                 aria-label="highlight"
               >
                 <Highlighter className="h-3.5 w-3.5" />
@@ -193,26 +189,19 @@ function Index() {
             </div>
           </div>
           <div className="relative flex-1 min-h-0">
-            <textarea
+            <div
               ref={notesRef}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="click here to type..."
-              className="relative h-full w-full resize-none overflow-y-auto bg-transparent leading-7 text-foreground outline-none"
+              contentEditable
+              suppressContentEditableWarning
+              data-placeholder="click here to type..."
+              className="notes-editor relative h-full w-full overflow-y-auto bg-transparent text-foreground outline-none"
               style={{
                 color: "var(--foreground)",
                 fontSize: `${fontSize}px`,
                 lineHeight: `${Math.round(fontSize * 1.75)}px`,
-                fontWeight: styles.bold ? 700 : 400,
-                fontStyle: styles.italic ? "italic" : "normal",
-                textDecoration: [
-                  styles.underline ? "underline" : "",
-                  styles.strike ? "line-through" : "",
-                ].filter(Boolean).join(" ") || "none",
-                background: highlight
-                  ? `linear-gradient(oklch(0.92 0.15 90 / 0.45), oklch(0.92 0.15 90 / 0.45)), repeating-linear-gradient(transparent 0, transparent ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75)}px)`
-                  : `repeating-linear-gradient(transparent 0, transparent ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75)}px)`,
+                background: `repeating-linear-gradient(to bottom, transparent 0, transparent ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75) - 1}px, var(--note-line) ${Math.round(fontSize * 1.75)}px)`,
                 backgroundAttachment: "local",
+                textShadow: "var(--text-shadow)",
               }}
             />
           </div>
